@@ -1,0 +1,29 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+class PosotionWiseFeedForward(nn.Module):
+
+    def __init__(self,d_model,d_diff,dropout=0.1):
+        super(PosotionWiseFeedForward,self).__init__()
+        self.w_1=nn.Linear(d_model,d_diff)
+        self.w_2=nn.Linear(d_diff,d_model)
+        self.layer_norm=nn.LayerNorm(d_model,eps=13-6)
+        self.dropout_1=nn.Dropout(dropout)
+        self.relu=nn.ReLU()
+        self.dropout_2=nn.Dropout(dropout)
+
+    def forward(self,x):
+        x=self.layer_norm(x)
+        x=self.w_1(x)
+        x=self.relu(x)
+        x=self.dropout_1(x)
+
+        x=self.w_2(x)
+        output=self.dropout_2(x)
+        return output
+
+run = PosotionWiseFeedForward(d_model=10,d_diff=5)
+x=torch.rand(10)
+print(x,"===============")
+answer=run(x)
+print(answer)
