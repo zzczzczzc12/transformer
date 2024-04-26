@@ -1,0 +1,26 @@
+import torch
+from torch import nn
+import numpy
+class ScaleDotProductionAttention(nn.Module):
+    def __init__(self):
+        super(ScaleDotProductionAttention,self).__init__()
+        self.softmax=nn.Softmax(dim=-1)
+    def forward(self,Q,K,V,mask=None):
+        K_T=K.transpose(-1,-2)
+        d_k=torch.tensor(Q.size(-1))
+        scores=torch.matmul(Q,K_T)/torch.sqrt(d_k)
+
+        if mask is not None:
+            score=scores.masked_fill(mask==0,-1e9)
+        
+        attn_weights=self.softmax(scores)
+        output=torch.matmul(attn_weights,V)
+
+        return output
+
+Q=torch.rand(4,4)
+K=torch.rand(4,4)
+V=torch.rand(4,4)
+
+attention = ScaleDotProductionAttention()
+print(attention(Q,K,V))
